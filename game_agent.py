@@ -20,38 +20,74 @@ def custom_score(game, player):
     my_moves = float(len(game.get_legal_moves(player)))
     my_opponent_moves = float(len(game.get_legal_moves(game.get_opponent(player))))
     
-
-    return math.sqrt((playerLocation[0]-opponentLocation[0]) * (playerLocation[0]-opponentLocation[0]) + (playerLocation[1]-opponentLocation[1]) * (playerLocation[1]-opponentLocation[1])) * (my_moves - my_opponent_moves)
+    bestDistance = math.sqrt((0-game.width-1) * (0-game.width-1) + (0-game.height-1) * (0-game.height-1))
+    
+    currentDistance = math.sqrt((playerLocation[0]-opponentLocation[0]) * (playerLocation[0]-opponentLocation[0]) + (playerLocation[1]-opponentLocation[1]) * (playerLocation[1]-opponentLocation[1]))
+    
+    weight = 2
+    bonus = currentDistance/bestDistance*2
+    
+    return  (my_moves - my_opponent_moves) + bonus
 
 
 def custom_score_2(game, player):
-    my_moves = float(len(game.get_legal_moves(player)))
-    my_opponent_moves = float(len(game.get_legal_moves(game.get_opponent(player))))
-    return my_moves - 2*my_opponent_moves
+    playerLocation = game.get_player_location(player)
+    opponentLocation = game.get_player_location(game.get_opponent(player))
     
-
-
-def custom_score_3(game, player):
     my_moves = float(len(game.get_legal_moves(player)))
     my_opponent_moves = float(len(game.get_legal_moves(game.get_opponent(player))))
+    
+    totalDistance = math.sqrt((0-game.width-1) * (0-game.width-1) + (0-game.height-1) * (0-game.height-1))
+    
+    currentDistance = math.sqrt((playerLocation[0]-opponentLocation[0]) * (playerLocation[0]-opponentLocation[0]) + (playerLocation[1]-opponentLocation[1]) * (playerLocation[1]-opponentLocation[1]))
     
     centerPoint = (game.width/2,game.height/2)
     
-    count = 0
+    centerDistance = math.sqrt((playerLocation[0]-centerPoint[0]) * (playerLocation[0]-centerPoint[0]) + (playerLocation[1]-centerPoint[1]) * (playerLocation[1]-centerPoint[1]))
+    
+    bonus = ((centerDistance+currentDistance)/2)/totalDistance*4
+    
+    return (my_moves - my_opponent_moves) - bonus
+
+
+def custom_score_3(game, player):
+    playerLocation = game.get_player_location(player)
+    opponentLocation = game.get_player_location(game.get_opponent(player))
+    
+    my_moves = float(len(game.get_legal_moves(player)))
+    my_opponent_moves = float(len(game.get_legal_moves(game.get_opponent(player))))
+    totalDistance = game.width
+    
+    currentDistance = math.sqrt((playerLocation[0]-opponentLocation[0]) * (playerLocation[0]-opponentLocation[0]) + (playerLocation[1]-opponentLocation[1]) * (playerLocation[1]-opponentLocation[1]))
+    
+    centerPoint = (game.width/2,game.height/2)
+    
+    centerDistance = math.sqrt((opponentLocation[0]-centerPoint[0]) * (opponentLocation[0]-centerPoint[0]) + (opponentLocation[1]-centerPoint[1]) * (opponentLocation[1]-centerPoint[1]))
+    
+    centerDistance2 = math.sqrt((playerLocation[0]-centerPoint[0]) * (playerLocation[0]-centerPoint[0]) + (playerLocation[1]-centerPoint[1]) * (playerLocation[1]-centerPoint[1]))
+    
+    bonus =  (((centerDistance-centerDistance2+currentDistance)/3)/game.width)*4
+    
+    return (my_moves - my_opponent_moves) + bonus
+    
+    """
+    centerPoint = (game.width/2,game.height/2)
+    
+    mutiplier = math.sqrt((playerLocation[0]-opponentLocation[0]) * (playerLocation[0]-opponentLocation[0]) + (playerLocation[1]-opponentLocation[1]) * (playerLocation[1]-opponentLocation[1]))
+    
+    
+    
+    totalDistance = math.sqrt((0-game.width) * (0-game.width) + (0-game.height) * (0-game.height))/2
+    
     for move in game.get_legal_moves(player):
-        result = numpy.subtract(move, centerPoint)
-        result[0] = abs(result[0])
-        result[1] = abs(result[1])
-        
-        count = count + 1 / (result[0] + result[1])
+        mutiplier = mutiplier + 1/math.sqrt((move[0]-centerPoint[0]) * (move[0]-centerPoint[0]) + (move[1]-centerPoint[1]) * (move[1]-centerPoint[1]))/totalDistance
     
     for move in game.get_legal_moves(game.get_opponent(player)):
-        result = numpy.subtract(move, centerPoint)
-        result[0] = abs(result[0])
-        result[1] = abs(result[1])
-        
-        count = count - (result[0] + result[1])
-    return my_moves - my_opponent_moves + count
+        mutiplier = mutiplier - 1/math.sqrt((move[0]-centerPoint[0]) * (move[0]-centerPoint[0]) + (move[1]-centerPoint[1]) * (move[1]-centerPoint[1]))/totalDistance
+    
+    return  (my_moves - my_opponent_moves) + mutiplier*(my_moves - my_opponent_moves)/2
+    """
+
 
 
 class IsolationPlayer:
